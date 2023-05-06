@@ -16,7 +16,7 @@ def download_daily_plan():
 
     # Gives an error if there is a missing input
     if kademe == "" or hafta == "" or oisim == "" or misim == "":
-        messagebox.showerror("Error", "Lütfen eksik alanları doldurunuz.")
+        messagebox.showerror("Hata!", "Lütfen eksik alanları doldurunuz.")
         return
 
     kademe_url = str("https://www.ingilizceciyiz.com/"+kademe+"-sinif-ingilizce-gunluk-plan/")
@@ -27,19 +27,20 @@ def download_daily_plan():
     # Parse text obtained
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and hafta +". Hafta" in tag.text)
+
+
+    eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and str(hafta) +". Hafta" in tag.text)
+    print(eslesen_haftalar)
 
     for link in eslesen_haftalar:
-        if ('.docx' in link.get('href', [])):
-            # Get response object for link
-            response = requests.get(link.get('href'))
-
-            # Write content in docx file
+        if '.docx' in link['href']:
+            response = requests.get(link['href'])
             docx = open(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx", 'wb')
             docx.write(response.content)
             docx.close()
+            break  # exit the loop after the first valid link is downloaded
 
-    status_label.config(text="İşlem tamamlandı.")
+
 
     # Load the document and change teacher and principal name
     document = Document(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx")
