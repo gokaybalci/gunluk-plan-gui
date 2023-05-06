@@ -60,32 +60,35 @@ root = tk.Tk()
 root.title("Gunluk Plan GUI")
 
 # Set the window size
-root.geometry("400x300")
+root.geometry("400x400")
+
+
+my_font = ('Century Gothic', 13)
 
 # create input widgets for user inputs
-kademe_label = tk.Label(root, text="Kademe giriniz:")
-kademe_label.pack()
+kademe_label = tk.Label(root, text="Kademe giriniz:", font=my_font)
+kademe_label.pack(side="top", padx=3, pady=3)
 kademe_entry = tk.Entry(root)
-kademe_entry.pack()
+kademe_entry.pack(side="top", padx=1, pady=1)
 
-hafta_label = tk.Label(root, text="Günlük plan haftası:")
-hafta_label.pack()
+hafta_label = tk.Label(root, text="Günlük plan haftası:", font=my_font)
+hafta_label.pack(side="top", padx=3, pady=3)
 hafta_entry = tk.Entry(root)
-hafta_entry.pack()
+hafta_entry.pack(side="top", padx=1, pady=1)
 
-oisim_label = tk.Label(root, text="Öğretmen ismi:")
-oisim_label.pack()
+oisim_label = tk.Label(root, text="Öğretmen ismi:", font=my_font)
+oisim_label.pack(side="top", padx=3, pady=3)
 oisim_entry = tk.Entry(root)
-oisim_entry.pack()
+oisim_entry.pack(side="top", padx=1, pady=1)
 
-misim_label = tk.Label(root, text="İdareci ismi:")
-misim_label.pack()
+misim_label = tk.Label(root, text="İdareci ismi:", font=my_font)
+misim_label.pack(side="top", padx=3, pady=3)
 misim_entry = tk.Entry(root)
-misim_entry.pack()
+misim_entry.pack(side="top", padx=1, pady=1)
 
 # create a button to execute the code
-execute_button = tk.Button(root, text="İndir", command=download_daily_plan)
-execute_button.pack()
+execute_button = tk.Button(root, text="İndir", command=download_daily_plan, font=my_font)
+execute_button.pack(side="top", padx=5, pady=5)
 
 # Create a label to show the status of the process
 status_label = tk.Label(root, text="")
