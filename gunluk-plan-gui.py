@@ -30,7 +30,6 @@ def download_daily_plan():
 
 
     eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and str(hafta) +". Hafta" in tag.text)
-    print(eslesen_haftalar)
 
     for link in eslesen_haftalar:
         if '.docx' in link['href']:
