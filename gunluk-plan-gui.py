@@ -65,18 +65,52 @@ root = tk.Tk()
 root.title("Gunluk Plan GUI")
 root.resizable(False, False)
 
+class Tooltip:
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+
+    def enter(self, event=None):
+        x = y = 0
+        x, y, cx, cy = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 25
+        y += self.widget.winfo_rooty() + 20
+        # Creates a toplevel window
+        self.tw = tk.Toplevel(self.widget)
+        self.tw.wm_overrideredirect(True)
+        self.tw.wm_geometry("+%d+%d" % (x, y))
+        # Creates a label containing tooltip text
+        label = tk.Label(self.tw, text=self.text, justify='left',
+                      background="#ffffff", relief='solid', borderwidth=1,
+                      font=("century gothic", "13", "normal"))
+        label.pack(ipadx=1)
+
+    def leave(self, event=None):
+        if self.tw:
+            self.tw.destroy()
+
+
+
 # Set the window size
 root.geometry("350x375")
+
 
 # font setup
 input_font = ('Century Gothic', 13)
 button_font = ('Century Gothic', 17)
+info_font = ('Century Gothic', 7)
 
 # create input widgets for user inputs
 kademe_label = tk.Label(root, text="Kademe giriniz:", font=input_font)
 kademe_label.pack(side="top", padx=3, pady=3)
 kademe_entry = tk.Entry(root)
 kademe_entry.pack(side="top", padx=1, pady=1)
+
+info_button = tk.Button(root, text="i", font=info_font)
+info_button.place(relx=0.8, rely=0.28, anchor="e")
+tooltip = Tooltip(info_button, "Virgül kullanarak birden fazla hafta indirebilirsin.")
 
 hafta_label = tk.Label(root, text="Haftalar:", font=input_font)
 hafta_label.pack(side="top", padx=3, pady=3)
