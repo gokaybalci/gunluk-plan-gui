@@ -9,51 +9,57 @@ from docx import Document
 
 
 def download_daily_plan():
-    kademe = kademe_entry.get()
-    haftalar = haftalar_entry.get().split(',')
+    kademe_list = []
+    for k in kademe_entry.get().replace(" ", "").split(","):
+        k = k.strip()
+        if k.isdigit() and int(k) > 0 and int(k) <= 8:
+            kademe_list.append(int(k))
+    hafta_list = []
+    for h in hafta_entry.get().replace(" ", "").split(","):
+        h = h.strip()
+        if h.isdigit() and int(h) > 0 and int(h) <= 52:
+            hafta_list.append(int(h))
     oisim = oisim_entry.get()
     misim = misim_entry.get()
 
     # Gives an error if there is a missing input
-    if kademe == "" or haftalar == "" or oisim == "" or misim == "":
+    if kademe_list == "" or hafta_list == "" or oisim == "" or misim == "":
         messagebox.showerror("Hata!", "Lütfen eksik alanları doldurunuz.")
         return
 
-    kademe_url = str("https://www.ingilizceciyiz.com/"+kademe+"-sinif-ingilizce-gunluk-plan/")
 
-    # Requests URL and get response object
-    response = requests.get(kademe_url)
+    for kademe_name in kademe_list:
+        kademe_url = f"https://www.ingilizceciyiz.com/{kademe_name}-sinif-ingilizce-gunluk-plan/"
+        # Requests URL and get response object
+        response = requests.get(kademe_url)
 
-    # Parse text obtained
-    soup = BeautifulSoup(response.text, 'html.parser')
+        # Parse text obtained
+        soup = BeautifulSoup(response.text, 'html.parser')
 
-    #eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and str(hafta) +". Hafta" in tag.text)
+        for hafta in hafta_list:
+            # Search for the link that contains the week number and download the file
+            eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and str(hafta) + ". Hafta" in tag.text)
+            for link in eslesen_haftalar:
+                if '.docx' in link['href']:
+                    response = requests.get(link['href'])
+                    docx = open(f"{kademe_name}. Sınıf {hafta}. Hafta.docx", 'wb')
+                    docx.write(response.content)
+                    docx.close()
+                    break  # exit the loop after the first valid link is downloaded
 
-    for hafta in haftalar:
-        # Find the link for the current week
-        eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and str(hafta) +". Hafta" in tag.text)
-        for link in eslesen_haftalar:
-            if '.docx' in link['href']:
-                response = requests.get(link['href'])
-                docx = open(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx", 'wb')
-                docx.write(response.content)
-                docx.close()
-                break  # exit the loop after the first valid link is downloaded
+            # Load the downloaded document and change teacher and principal name
+                document = Document(f"{kademe_name}. Sınıf {hafta}. Hafta.docx")
+                dot_count = 0  # Counter for number of occurrences of 'dots' in given documents
+                for paragraph in document.paragraphs:
+                    if '…' in paragraph.text:
+                        dot_count += 1
+                    if dot_count == 1:
+                        paragraph.text = paragraph.text.replace('…', oisim, 1)
+                    elif dot_count == 2:
+                        paragraph.text = paragraph.text.replace('…', misim, 1)
 
-        # Load the downloaded document and change teacher and principal name
-        document = Document(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx")
-        dot_count = 0  # Counter for number of occurrences of 'dots' in given documents
-        for paragraph in document.paragraphs:
-            if '…' in paragraph.text:
-                dot_count += 1
-            if dot_count == 1:
-                paragraph.text = paragraph.text.replace('…', oisim, 1)
-            elif dot_count == 2:
-                paragraph.text = paragraph.text.replace('…', misim, 1)
+                document.save(f"{kademe_name}. Sınıf {hafta}. Hafta.docx")
 
-        document.save(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx")
-
-    status_label.config(text="Dosyanız hazır.")
 
 root = tk.Tk()
 root.title("Gunluk Plan GUI")
@@ -72,10 +78,10 @@ kademe_label.pack(side="top", padx=3, pady=3)
 kademe_entry = tk.Entry(root)
 kademe_entry.pack(side="top", padx=1, pady=1)
 
-haftalar_label = tk.Label(root, text="Haftalar:", font=input_font)
-haftalar_label.pack(side="top", padx=3, pady=3)
-haftalar_entry = tk.Entry(root)
-haftalar_entry.pack(side="top", padx=1, pady=1)
+hafta_label = tk.Label(root, text="Haftalar:", font=input_font)
+hafta_label.pack(side="top", padx=3, pady=3)
+hafta_entry = tk.Entry(root)
+hafta_entry.pack(side="top", padx=1, pady=1)
 
 oisim_label = tk.Label(root, text="Öğretmen ismi:", font=input_font)
 oisim_label.pack(side="top", padx=3, pady=3)
