@@ -48,17 +48,17 @@ def download_daily_plan():
                     break  # exit the loop after the first valid link is downloaded
 
             # Load the downloaded document and change teacher and principal name
-                document = Document(f"{kademe_name}. Sınıf {hafta}. Hafta.docx")
-                dot_count = 0  # Counter for number of occurrences of 'dots' in given documents
-                for paragraph in document.paragraphs:
-                    if '…' in paragraph.text:
-                        dot_count += 1
-                    if dot_count == 1:
-                        paragraph.text = paragraph.text.replace('…', oisim, 1)
-                    elif dot_count == 2:
-                        paragraph.text = paragraph.text.replace('…', misim, 1)
+            document = Document(f"{kademe_name}. Sınıf {hafta}. Hafta.docx")
+            dot_count = 0  # Counter for number of occurrences of 'dots' in given documents
+            for paragraph in document.paragraphs:
+                if '…' in paragraph.text:
+                    dot_count += 1
+                if dot_count == 1:
+                    paragraph.text = paragraph.text.replace('…', oisim, 1)
+                elif dot_count == 2:
+                    paragraph.text = paragraph.text.replace('…', misim, 1)
 
-                document.save(f"{kademe_name}. Sınıf {hafta}. Hafta.docx")
+            document.save(f"{kademe_name}. Sınıf {hafta}. Hafta.docx")
 
 
 root = tk.Tk()
