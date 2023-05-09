@@ -10,12 +10,12 @@ from docx import Document
 
 def download_daily_plan():
     kademe = kademe_entry.get()
-    hafta = hafta_entry.get()
+    haftalar = haftalar_entry.get().split(',')
     oisim = oisim_entry.get()
     misim = misim_entry.get()
 
     # Gives an error if there is a missing input
-    if kademe == "" or hafta == "" or oisim == "" or misim == "":
+    if kademe == "" or haftalar == "" or oisim == "" or misim == "":
         messagebox.showerror("Hata!", "Lütfen eksik alanları doldurunuz.")
         return
 
@@ -27,32 +27,31 @@ def download_daily_plan():
     # Parse text obtained
     soup = BeautifulSoup(response.text, 'html.parser')
 
+    #eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and str(hafta) +". Hafta" in tag.text)
 
+    for hafta in haftalar:
+        # Find the link for the current week
+        eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and str(hafta) +". Hafta" in tag.text)
+        for link in eslesen_haftalar:
+            if '.docx' in link['href']:
+                response = requests.get(link['href'])
+                docx = open(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx", 'wb')
+                docx.write(response.content)
+                docx.close()
+                break  # exit the loop after the first valid link is downloaded
 
-    eslesen_haftalar = soup.find_all(lambda tag: len(tag.find_all('a')) == 0 and str(hafta) +". Hafta" in tag.text)
+        # Load the downloaded document and change teacher and principal name
+        document = Document(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx")
+        dot_count = 0  # Counter for number of occurrences of 'dots' in given documents
+        for paragraph in document.paragraphs:
+            if '…' in paragraph.text:
+                dot_count += 1
+            if dot_count == 1:
+                paragraph.text = paragraph.text.replace('…', oisim, 1)
+            elif dot_count == 2:
+                paragraph.text = paragraph.text.replace('…', misim, 1)
 
-    for link in eslesen_haftalar:
-        if '.docx' in link['href']:
-            response = requests.get(link['href'])
-            docx = open(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx", 'wb')
-            docx.write(response.content)
-            docx.close()
-            break  # exit the loop after the first valid link is downloaded
-
-
-
-    # Load the document and change teacher and principal name
-    document = Document(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx")
-    dot_count = 0  # Counter for number of occurrences of 'dots' in given documents
-    for paragraph in document.paragraphs:
-        if '…' in paragraph.text:
-            dot_count += 1
-        if dot_count == 1:
-            paragraph.text = paragraph.text.replace('…', oisim, 1)
-        elif dot_count == 2:
-            paragraph.text = paragraph.text.replace('…', misim, 1)
-
-    document.save(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx")
+        document.save(kademe + ". Sınıf " + hafta + ". Hafta" + ".docx")
 
     status_label.config(text="Dosyanız hazır.")
 
@@ -73,10 +72,10 @@ kademe_label.pack(side="top", padx=3, pady=3)
 kademe_entry = tk.Entry(root)
 kademe_entry.pack(side="top", padx=1, pady=1)
 
-hafta_label = tk.Label(root, text="Günlük plan haftası:", font=input_font)
-hafta_label.pack(side="top", padx=3, pady=3)
-hafta_entry = tk.Entry(root)
-hafta_entry.pack(side="top", padx=1, pady=1)
+haftalar_label = tk.Label(root, text="Haftalar:", font=input_font)
+haftalar_label.pack(side="top", padx=3, pady=3)
+haftalar_entry = tk.Entry(root)
+haftalar_entry.pack(side="top", padx=1, pady=1)
 
 oisim_label = tk.Label(root, text="Öğretmen ismi:", font=input_font)
 oisim_label.pack(side="top", padx=3, pady=3)
